@@ -78,7 +78,7 @@ if [[ -z "${DOWNLOAD_URL}" ]]; then
 fi
 
 echo "New version download URL: "${DOWNLOAD_URL}
-run_and_check_status curl --silent -o download ${DOWNLOAD_URL}
+run_and_check_status curl --silent --location -o download ${DOWNLOAD_URL}
 
 # Calculate newe version checksum
 CHECKSUM=$(sha1sum ./download | cut -f1 -d' ')
