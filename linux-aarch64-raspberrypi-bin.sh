@@ -1,10 +1,35 @@
+#!/bin/bash
+
+# get Pushover token/user/url values from command line
+TOKEN=$1
+USER=$2
+URL=$3
+
+# function to run command, check exit code and exit with error code and message if exit code is not 0
 function run_and_check_status {
     "$@"
     local status=$?
     if [ $status -ne 0 ]; then
-	exit $status
+        send_notification "FAILED" "script failed ($1)!"
+        exit $status
     fi
     return $status
+}
+
+# function to send notification via Pushover (if configured) and print the message
+send_notification() {
+    echo $2 >&2
+    if [[ -z "${TOKEN}" || -z ${USER} ]]; then
+        echo "No Pushover token/user specified, no notification will be send!"
+    else
+	    curl -s --form-string "token=${TOKEN}" \
+            --form-string "user=${USER}" \
+            --form-string "title=linux-aarch64-raspberrypi-bin" \
+            --form-string "url=${URL}" \
+            --form-string "url_title=Builds" \
+            --form-string message="[$1] $2" \
+            https://api.pushover.net/1/messages.json
+    fi
 }
 
 # Cleanup previous repository location
@@ -21,7 +46,7 @@ CURRENT=$(cat PKGBUILD | grep -m1 "pkgver=" | cut -f2 -d"=" | tr -d ' ')
 
 # Check ${CURRENT} value not empty
 if [[ -z "${CURRENT}" ]]; then
-  echo "Failed to get current version from the PKGBUILD!" >&2
+  send_notification FAILED "Failed to get current version number from the PKGBUILD!"
   exit 1
 fi
 
@@ -32,14 +57,14 @@ LATEST=$(curl --silent https://api.github.com/repos/sakaki-/bcmrpi3-kernel/relea
 
 # Check ${LATEST} value not empty
 if [[ -z "${LATEST}" ]]; then
-  echo "Failed to get latest version number from the GitHub!" >&2
+  send_notification FAILED "Failed to get latest version number from the GitHub!"
   exit 1
 fi
 
 echo "Latest upstream version is: "${LATEST}
 
 if [[ "${CURRENT}" == "${LATEST}" ]]; then
-  echo "No new version available!"
+  send_notification PASSED "No new version available!"
   exit 0
 fi
 
@@ -48,7 +73,7 @@ DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/sakaki-/bcmrpi3-kernel
 
 # Check ${DOWNLOAD_URL} value not empty
 if [[ -z "${DOWNLOAD_URL}" ]]; then
-  echo "Failed to get latest version download URL from the GitHub!" >&2
+  send_notification FAILED "Failed to get latest version download URL from the GitHub!"
   exit 1
 fi
 
@@ -72,5 +97,6 @@ run_and_check_status git config --local user.name "ava1ar's autoupdate bot"
 run_and_check_status git add PKGBUILD .SRCINFO
 run_and_check_status git commit -m "Updated to ${LATEST}"
 run_and_check_status git push origin master
+send_notification PASSED "$(git log -n1 --pretty=format:"%s")"
 
 cd .. && rm -rf ./linux-aarch64-raspberrypi-bin
