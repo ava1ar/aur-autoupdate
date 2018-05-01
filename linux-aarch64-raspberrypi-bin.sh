@@ -71,5 +71,6 @@ run_and_check_status git config --local user.email "mail@ava1ar.me"
 run_and_check_status git config --local user.name "ava1ar's autoupdate bot"
 run_and_check_status git add PKGBUILD .SRCINFO
 run_and_check_status git commit -m "Updated to ${LATEST}"
+run_and_check_status git push origin master
 
 cd .. && rm -rf ./linux-aarch64-raspberrypi-bin
