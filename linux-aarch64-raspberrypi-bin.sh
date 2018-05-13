@@ -26,7 +26,7 @@ send_notification() {
             --form-string "user=${USER}" \
             --form-string "title=linux-aarch64-raspberrypi-bin" \
             --form-string "url=${URL}" \
-            --form-string "url_title=Builds" \
+            --form-string "url_title=Build log" \
             --form-string message="[$1] $2" \
             https://api.pushover.net/1/messages.json
     fi
