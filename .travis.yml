@@ -5,6 +5,7 @@ addons:
 
 install:
   - echo $AUR_KEY_ENC | base64 --decode | openssl aes-256-cbc -K $encrypted_ee07e40166de_key -iv $encrypted_ee07e40166de_iv -out ~/.ssh/id_rsa -d
+  - chmod 600 ~/.ssh/id_rsa
 
 script:
   - bash ./linux-aarch64-raspberrypi-bin.sh $pushover_token $pushover_user https://travis-ci.org/ava1ar/aur-autoupdate
