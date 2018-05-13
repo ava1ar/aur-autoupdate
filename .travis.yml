@@ -8,4 +8,4 @@ install:
   - chmod 600 ~/.ssh/id_rsa
 
 script:
-  - bash ./linux-aarch64-raspberrypi-bin.sh $pushover_token $pushover_user https://travis-ci.org/ava1ar/aur-autoupdate
+  - bash ./linux-aarch64-raspberrypi-bin.sh $pushover_token $pushover_user https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID
