@@ -5,6 +5,9 @@ TOKEN=$1
 USER=$2
 URL=$3
 
+# url to fetch latest release info
+LATEST_RELEASE_URL=https://api.github.com/repos/sakaki-/bcmrpi3-kernel/releases/latest
+
 # function to run command, check exit code and exit with error code and message if exit code is not 0
 function run_and_check_status {
     "$@"
@@ -53,7 +56,7 @@ fi
 echo "Current PKGBUILD version is: "${CURRENT}
 
 # Get latest version from the GitHub
-LATEST=$(curl --silent https://api.github.com/repos/sakaki-/bcmrpi3-kernel/releases | grep -m1 tag_name | cut -f2 -d":" | tr -d '", ')
+LATEST=$(curl --silent ${LATEST_RELEASE_URL} | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 
 # Check ${LATEST} value not empty
 if [[ -z "${LATEST}" ]]; then
@@ -69,7 +72,7 @@ if [[ "${CURRENT}" == "${LATEST}" ]]; then
 fi
 
 # Obtain latest version download URL from the GitHub
-DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/sakaki-/bcmrpi3-kernel/releases | grep -m1 browser_download_url | cut -f4 -d"\"" | tr -d '", ')
+DOWNLOAD_URL=$(curl --silent ${LATEST_RELEASE_URL} | grep '"browser_download_url":' | sed -E 's/.*"([^"]+)".*/\1/')
 
 # Check ${DOWNLOAD_URL} value not empty
 if [[ -z "${DOWNLOAD_URL}" ]]; then
