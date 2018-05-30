@@ -5,8 +5,10 @@ TOKEN=$1
 USER=$2
 URL=$3
 
-# url to fetch latest release info
-LATEST_RELEASE_URL=https://api.github.com/repos/sakaki-/bcmrpi3-kernel/releases/latest
+# Kernel repo URL
+KERNEL_REPO_URL=https://github.com/sakaki-/bcmrpi3-kernel.git
+# AUR repo URL
+AUR_REPO_URL=ssh://aur@aur.archlinux.org/linux-aarch64-raspberrypi-bin.git
 
 # function to run command, check exit code and exit with error code and message if exit code is not 0
 function run_and_check_status {
@@ -39,7 +41,7 @@ send_notification() {
 rm -rf linux-aarch64-raspberrypi-bin
 
 # Clone the PKGBUILD repo from AUR 
-run_and_check_status git clone ssh://aur@aur.archlinux.org/linux-aarch64-raspberrypi-bin.git
+run_and_check_status git clone ${AUR_REPO_URL}
 
 # Changedir to the PKGBUILD repo directory
 cd linux-aarch64-raspberrypi-bin
@@ -56,8 +58,10 @@ fi
 echo "Current PKGBUILD version is: "${CURRENT}
 
 # Get latest version from the GitHub
-curl -# ${LATEST_RELEASE_URL}
-LATEST=$(curl --silent ${LATEST_RELEASE_URL} | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+run_and_check_status git clone ${KERNEL_REPO_URL}
+cd bcmrpi3-kernel/
+LATEST=$(git describe --abbrev=0)
+cd ../
 
 # Check ${LATEST} value not empty
 if [[ -z "${LATEST}" ]]; then
