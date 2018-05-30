@@ -56,7 +56,7 @@ fi
 echo "Current PKGBUILD version is: "${CURRENT}
 
 # Get latest version from the GitHub
-curl -# ${LATEST_RELEASE_URL} >/dev/null
+curl -# ${LATEST_RELEASE_URL}
 LATEST=$(curl --silent ${LATEST_RELEASE_URL} | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 
 # Check ${LATEST} value not empty
