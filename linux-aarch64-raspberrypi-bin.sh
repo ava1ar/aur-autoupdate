@@ -76,19 +76,12 @@ if [[ "${CURRENT}" == "${LATEST}" ]]; then
   exit 0
 fi
 
-# Obtain latest version download URL from the GitHub
-DOWNLOAD_URL=$(curl --silent ${LATEST_RELEASE_URL} | grep '"browser_download_url":' | sed -E 's/.*"([^"]+)".*/\1/')
-
-# Check ${DOWNLOAD_URL} value not empty
-if [[ -z "${DOWNLOAD_URL}" ]]; then
-  send_notification FAILED "Failed to get latest version download URL from the GitHub!"
-  exit 1
-fi
-
+# Build latest version download URL and download released artifact from GitHub
+DOWNLOAD_URL="https://github.com/sakaki-/bcmrpi3-kernel/releases/download/${LATEST}/bcmrpi3-kernel-${LATEST}.tar.xz"
 echo "New version download URL: "${DOWNLOAD_URL}
 run_and_check_status curl --silent --location --output download ${DOWNLOAD_URL}
 
-# Calculate newe version checksum
+# Calculate new version checksum
 CHECKSUM=$(sha1sum ./download | cut -f1 -d' ')
 echo "New version checksum: "${CHECKSUM}
 rm -f ./download
